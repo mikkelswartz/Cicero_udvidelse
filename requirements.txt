@@ -1,3 +1,5 @@
 streamlit==0.57.3
 pandas==0.24.2
 pdftotext==2.1.4
+re
+string
