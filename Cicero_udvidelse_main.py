@@ -9,7 +9,7 @@
 
 # import libraries
 import streamlit as st
-import sys,re,string
+import re,string
 
 from basics import *
 import pages.Startside
