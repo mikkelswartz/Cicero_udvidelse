@@ -1,3 +1,4 @@
 streamlit==0.57.3
 pandas==0.24.2
 pdftotext
+barcodes
