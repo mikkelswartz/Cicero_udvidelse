@@ -14,6 +14,8 @@ import string
 
 from basics import *
 import pages.Startside
+import pages.Stregkode_generator_delehold
+import pages.Konvertering_af_bogbestillinger
 
 
 # import kvantitativ udlaanssnslyse
@@ -21,7 +23,9 @@ import pages.Startside
 #from quantitative_book_lending_analysis_by_book import *; 
 
 PAGES = {
-    "Startside" : pages.Startside
+    "Startside" : pages.Startside,
+    "Stregkodegenerator til delehold" : pages.Stregkode_generator_delehold,
+    "Konvertering af bogbestillinger" : pages.Konvertering_af_bogbestillinger
     #"Forhydrering" : pages.Forhydering,
     #"MTX infusion" : pages.MTX_infusion,
     #"Monitorering af toksicitet" : pages.Monitorering_af_toksicitet
@@ -41,10 +45,10 @@ def main():
     
 
     # customize width of the content
-    #sidebar_settings()
+    sidebar_settings()
 
     # remove the steamlit footer and the hamburger menu in top right cornor
-    hide_streamlit_style()
+    #hide_streamlit_style()
     # display costum footer
     custom_footer()
 
