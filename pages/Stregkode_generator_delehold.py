@@ -102,7 +102,7 @@ def write():
 
         # Lav en sammensat dataframe af de to uploadede filer
         Elever_merged_data = pd.merge(Elever_Cicero_data,Elever_Lectio_data, on=["Navn", "Stamklasse"])
-        Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0, ignore_index=True)
+        Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0)
         if st.checkbox("Vis samlet elevoversigt"):
             st.write(Elever_merged_data)
 
