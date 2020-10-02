@@ -17,6 +17,7 @@ from basics import *
 
 import csv
 import os
+import shutil
 
 def write():
     st.header("Stregkodegenererator til delehold")
@@ -103,6 +104,7 @@ def write():
         # Lav en sammensat dataframe af de to uploadede filer
         Elever_merged_data = pd.merge(Elever_Cicero_data,Elever_Lectio_data, on=["Navn", "Stamklasse"])
         Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0)
+        #Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0, ignore_index=True)
         if st.checkbox("Vis samlet elevoversigt"):
             st.write(Elever_merged_data)
 
@@ -116,6 +118,12 @@ def write():
 
         # Den resterende kode sættes i gang når brugeren ønsker det
         if st.button("Generer filer med stregkoder for de valgte hold"):
+            # Genereate folder to barcodes
+            try:
+                os.mkdir('Barcodes')
+            except OSError:
+                print ("Creation of the directory %s failed" % path)
+
             # Generer stregkodeark for hvert af de valgte hold
             for hold in range(0,len(Valgte_hold)):
 
@@ -221,6 +229,10 @@ def write():
                 st.success('Succes!  \n' + str(len(Valgte_hold)) + ' PDF-filer er genereret. Filerne er placeret på skrivebordet.')
             elif len(Valgte_hold) == 0:
                 st.error('Du mangler at vælge hvilke holdoversigter som ønskes genereret.')
+
+            # Delete barcodes
+            shutil.rmtree('Barcodes')
+
 
 
 
