@@ -12,20 +12,21 @@ import streamlit as st
 import re
 import string
 
+### tester ###
+import sys
+import subprocess
+
+# implement pip as a subprocess:
+subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'pdftotext'])
+subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'pdfplumber'])
+### tester ###
+
 from basics import *
 import pages.Startside
 import pages.Stregkode_generator_delehold
 import pages.Konvertering_af_bogbestillinger
 
 
-import sys
-import subprocess
-
-### tester ###
-# implement pip as a subprocess:
-subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'pdftotext'])
-subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'pdfplumber'])
-### tester ###
 
 
 # import kvantitativ udlaanssnslyse
