@@ -18,6 +18,18 @@ import pages.Stregkode_generator_delehold
 import pages.Konvertering_af_bogbestillinger
 
 
+import sys
+import subprocess
+
+### tester ###
+# implement pip as a subprocess:
+subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 
+'pdftotext'])
+subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 
+'pdfplumber'])
+### tester ###
+
+
 # import kvantitativ udlaanssnslyse
 #from quantitative_book_lending_analysis_by_class import *;
 #from quantitative_book_lending_analysis_by_book import *; 
