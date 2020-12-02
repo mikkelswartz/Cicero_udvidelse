@@ -17,8 +17,8 @@ import sys
 import subprocess
 
 # implement pip as a subprocess:
-subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'pdftotext'])
-subprocess.check_call([sys.executable, '-m', 'pip3', 'install', 'pdfplumber'])
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pdftotext'])
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pdfplumber'])
 ### tester ###
 
 from basics import *
