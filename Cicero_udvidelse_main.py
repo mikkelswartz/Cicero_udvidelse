@@ -12,21 +12,12 @@ import streamlit as st
 import re
 import string
 
-### tester ###
-import sys
-import subprocess
-
-# implement pip as a subprocess:
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pdftotext'])
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pdfplumber'])
-### tester ###
-
 from basics import *
 import pages.Startside
 import pages.Stregkode_generator_delehold
 import pages.Konvertering_af_bogbestillinger
-
-
+import pages.Reoloversigt
+import pages.Hjaelpe_vaerktoejer
 
 
 # import kvantitativ udlaanssnslyse
@@ -36,7 +27,9 @@ import pages.Konvertering_af_bogbestillinger
 PAGES = {
     "Startside" : pages.Startside,
     "Stregkodegenerator til delehold" : pages.Stregkode_generator_delehold,
-    "Konvertering af bogbestillinger" : pages.Konvertering_af_bogbestillinger
+    "Konvertering af bogbestillinger" : pages.Konvertering_af_bogbestillinger,
+    "Reoloversigt" : pages.Reoloversigt,
+    "Ekstra hjælpevæktøjer" : pages.Hjaelpe_vaerktoejer
     #"Forhydrering" : pages.Forhydering,
     #"MTX infusion" : pages.MTX_infusion,
     #"Monitorering af toksicitet" : pages.Monitorering_af_toksicitet

@@ -1,5 +1,5 @@
 import streamlit as st
-#import pdftotext
+import pdftotext
 import re
 import pandas as pd
 
@@ -73,7 +73,7 @@ def custom_footer():
         </style>
 
         <div class="footer">
-            Cicero Udvidelse - Et program udviklet Mikkel Swartz
+            Cicero Udvidelse - Et program udviklet af Mikkel Swartz
         </div>
     """
     st.markdown(custom_footer, unsafe_allow_html=True) 
