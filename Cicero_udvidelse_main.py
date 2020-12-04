@@ -11,7 +11,7 @@
 import streamlit as st
 import re
 import string
-import openpyxl
+from openpyxl import *
 
 from basics import *
 #import pages.Startside
