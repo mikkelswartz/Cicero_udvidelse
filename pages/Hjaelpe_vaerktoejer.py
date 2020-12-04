@@ -39,3 +39,10 @@ def write():
         "Dage til 1. juni "+ str(year+1)+": "+ str(diff_two)+ "  \n"
         "Dage til 1. juni "+ str(year+2)+": "+ str(diff_three)
         )
+
+    st.subheader("Antal indregistrerede bøger")
+    st.write("Her kan du beregne hvor mange bøger der er indregistreret af samme sæt ved at indsate første og sidste påsatte stregkode.")
+    First_barcode = st.number_input("Første stregkode:", min_value=10000, max_value=999999, step=1)
+    Last_barcode = st.number_input("Sidste stregkode:", min_value=10000, max_value=999999, step=1)
+    Diff_barcode = Last_barcode-First_barcode+1
+    st.info("Antal bøger indregistreret: " + str(Diff_barcode))
