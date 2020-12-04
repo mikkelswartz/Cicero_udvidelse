@@ -1,5 +1,5 @@
 import streamlit as st
-import pdftotext
+#import pdftotext
 import re
 import pandas as pd
 
