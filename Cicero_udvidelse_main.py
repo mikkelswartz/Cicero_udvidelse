@@ -13,7 +13,7 @@ import re
 import string
 
 from basics import *
-#import pages.Startside
+import pages.Startside
 import pages.Stregkode_generator_delehold
 import pages.Konvertering_af_bogbestillinger
 import pages.Reoloversigt
