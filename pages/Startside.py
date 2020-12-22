@@ -3,7 +3,7 @@
 import streamlit as st
 from basics import *
 
-import pdfplumber
+#import pdfplumber
 # Hvis pdftotext skal benyttes, så se her: https://www.activestate.com/resources/quick-reads/how-to-install-python-packages-using-a-script/
 
 def write():
