@@ -25,7 +25,7 @@ import pages.Hjaelpe_vaerktoejer
 #from quantitative_book_lending_analysis_by_book import *; 
 
 PAGES = {
-    #"Startside" : pages.Startside,
+    "Startside" : pages.Startside,
     "Stregkodegenerator til delehold" : pages.Stregkode_generator_delehold,
     "Konvertering af bogbestillinger" : pages.Konvertering_af_bogbestillinger,
     "Reoloversigt" : pages.Reoloversigt,
