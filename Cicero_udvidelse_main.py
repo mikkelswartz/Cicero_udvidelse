@@ -5,6 +5,7 @@ import streamlit as st
 import re
 import string
 
+from installer import *
 from basics import *
 import pages.Startside
 import pages.Udlaansoversigt_per_klasse
@@ -30,6 +31,8 @@ PAGES = {
 }
 
 def main():
+
+    install_func('pdftotext')
     
     st.sidebar.title("Navigation")
     page_selection = st.sidebar.radio('', options=list(PAGES.keys()))
