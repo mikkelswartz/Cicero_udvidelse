@@ -5,7 +5,7 @@ import streamlit as st
 import re
 import string
 
-from installer import *
+from Installer import *
 from basics import *
 import pages.Startside
 import pages.Udlaansoversigt_per_klasse
