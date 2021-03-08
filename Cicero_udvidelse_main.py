@@ -6,7 +6,6 @@ import re
 import string
 
 from Installer import *
-install_func('pdftotext')
 from basics import *
 import pages.Startside
 import pages.Udlaansoversigt_per_klasse
