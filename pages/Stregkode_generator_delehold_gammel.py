@@ -4,7 +4,6 @@ import streamlit as st
 import pandas as pd
 import barcode
 from barcode.writer import ImageWriter
-import re
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -23,16 +22,6 @@ import shutil
 def write():
     st.header("Stregkodegenererator til delehold")
     
-    Sikkerhedsmode = st.radio("Hvilket mode skal bruges?", options=["Standard", "Afsluttet grundforløb"])
-    if st.checkbox("Hvad er forskellen på 'Standard' og 'Afsluttet grundforløb'?"):
-        st.info("I 'Standard'-mode bliver de to lister sammelinget ud fra både navn og stamklasse, hvilket giver "
-            "ekstra sikkerhed hvis to elever har samme navn.  \n\n"
-            "I 'Afsluttet grundforløb'-mode er det kun navne som sammenlignes. \n"
-            "Dette giver mulighed for at trække en oversigt over 1.g klasser i slutningen af grundforløbet. \n"
-            "OBS! Det er kun muligt at se de nye 1.g klasser hvis deres delehold er ændret i Lectio."
-        )
-
-
     if st.checkbox("Vis hjælp til at lokalisere elevoversigt fra Cicero og Lectio"):
         st.info(
             "__Elevoversigt fra Cicero:__  \n"
@@ -70,7 +59,7 @@ def write():
     st.write("__Upload elevoversigt fra Lectio__")
     Elever_Lectio_file = st.file_uploader("Uploade eksport af fuld elevoversigt fra Lectio i xlsx-format", type="xlsx") 
 
-    if Elever_Cicero_file and Elever_Lectio_file is not None:
+    if Elever_Lectio_file is not None:
         Elever_Lectio_data = pd.read_excel(Elever_Lectio_file, sep=';', na_filter=False)
         Elever_Lectio_data.drop([
             "Id", 
@@ -104,40 +93,23 @@ def write():
                     Hold.add(elem)
         Hold = list(Hold)
         Hold.sort()
-        if Sikkerhedsmode == "Standard":
-            Valgte_hold = st.multiselect("Du kan vælge flere hold på én gang.", options=Hold)
-        if Sikkerhedsmode == "Afsluttet grundforløb":
-            # Lav
-            Stamklasser = []
-            for i in Hold:
-                result = re.search("([1-3][eimst])\sDA", i)
-                if result is not None:
-                    Stamklasser.append(result.group(1))
+        Valgte_hold = st.multiselect("Du kan vælge flere hold på én gang.", options=Hold)
 
-            Valgte_hold = st.multiselect("Du kan vælge flere stamklasser på én gang.", options=Stamklasser)
 
+        
     # Generer stregkoder
     if Elever_Cicero_file and Elever_Lectio_file is not None and len(Hold) != 0:
         #generate_barcodes(Elever_Cicero_data, Elever_Lectio_data, Valgte_hold)
 
         # Lav en sammensat dataframe af de to uploadede filer
-        if Sikkerhedsmode == "Standard":
-            Elever_merged_data = pd.merge(Elever_Cicero_data,Elever_Lectio_data, on=["Navn", "Stamklasse"])
-        if Sikkerhedsmode == "Afsluttet grundforløb":
-            Elever_merged_data = pd.merge(Elever_Cicero_data,Elever_Lectio_data, on=["Navn"])
-        
-        
+        Elever_merged_data = pd.merge(Elever_Cicero_data,Elever_Lectio_data, on=["Navn", "Stamklasse"])
         Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0)
-        #Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0, ignore_index=True)  #### der skal tjekkes om denne skal være gældende
+        #Elever_merged_data = Elever_merged_data.sort_values("Navn", axis=0, ignore_index=True)
         if st.checkbox("Vis samlet elevoversigt"):
             st.write(Elever_merged_data)
 
         # Find elever som ikke eksisterer i begge filer
-        if Sikkerhedsmode == "Standard":
-            Elever_med_fejl = pd.concat([Elever_Cicero_data,Elever_Lectio_data]).drop_duplicates(subset = ['Navn','Stamklasse'], keep=False)
-        if Sikkerhedsmode == "Afsluttet grundforløb":
-            Elever_med_fejl = pd.concat([Elever_Cicero_data,Elever_Lectio_data]).drop_duplicates(subset = ['Navn'], keep=False)
-        
+        Elever_med_fejl = pd.concat([Elever_Cicero_data,Elever_Lectio_data]).drop_duplicates(subset = ['Navn','Stamklasse'], keep=False)
         if len(Elever_med_fejl) == 0:
             st.info("Der var ingen elever som kun var at finde i en enkelt fil.")
         elif len(Elever_med_fejl) != 0:

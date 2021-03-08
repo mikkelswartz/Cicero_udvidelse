@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-
-# Author:	    Mikkel Swartz
-# Date:		    2-07-2019
-# Institution:  Marie Kruses Skole
-# Version:      2.0
-# Function:     This program analyse data from Ciceo
-
 # import libraries
 import streamlit as st
 import re
@@ -14,10 +7,12 @@ import string
 
 from basics import *
 import pages.Startside
+import pages.Udlaansoversigt_per_klasse
 import pages.Stregkode_generator_delehold
 import pages.Konvertering_af_bogbestillinger
 import pages.Reoloversigt
 import pages.Hjaelpe_vaerktoejer
+import pages.Om
 
 
 # import kvantitativ udlaanssnslyse
@@ -26,13 +21,12 @@ import pages.Hjaelpe_vaerktoejer
 
 PAGES = {
     "Startside" : pages.Startside,
+    "Udlånsoversigt per klasse" : pages.Udlaansoversigt_per_klasse,
     "Stregkodegenerator til delehold" : pages.Stregkode_generator_delehold,
     "Konvertering af bogbestillinger" : pages.Konvertering_af_bogbestillinger,
     "Reoloversigt" : pages.Reoloversigt,
-    "Ekstra hjælpevæktøjer" : pages.Hjaelpe_vaerktoejer
-    #"Forhydrering" : pages.Forhydering,
-    #"MTX infusion" : pages.MTX_infusion,
-    #"Monitorering af toksicitet" : pages.Monitorering_af_toksicitet
+    "Ekstra hjælpevæktøjer" : pages.Hjaelpe_vaerktoejer,
+    "Om": pages.Om
 }
 
 def main():

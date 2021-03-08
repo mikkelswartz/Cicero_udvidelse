@@ -1,7 +1,9 @@
 import streamlit as st
-#import pdftotext
+import pdftotext
 import re
 import pandas as pd
+import numpy as np
+
 
 Destination_main_file = "MTX-dataark.xlsx"
 Destination_st_file = "df_selected_treatment.xlsx"
@@ -73,7 +75,7 @@ def custom_footer():
         </style>
 
         <div class="footer">
-            Cicero Udvidelse - Et program udviklet af Mikkel Swartz
+            Cicero Udvidelse - Et program udviklet af Mikkel Swartz. Se mere i fanen "Om".
         </div>
     """
     st.markdown(custom_footer, unsafe_allow_html=True) 
@@ -144,11 +146,23 @@ def PDF_to_list_of_strings(pdf):
             if templine == "":
                 if elem != " ":
                     templine += elem
+                
     
-        # Append temporary line to the list 'pdflines' and reset temporary line
+            # lines to be removed
+            remove_list = {
+                "Antal dage Langtids-\n", 
+                "Titel Forfatter Materialeno. DK-5 Udlånt Afl. frist\n", 
+                "Titel Forfatter Materialeno. DK-5 Udlånt Afl. frist overskredet lån\n",
+                "overskredet lån\n",
+                "\n"}
+
+            # Append temporary line to the list 'pdflines' and reset temporary line
             if elem == "\n":
-                pdflines.append(templine[:-1])
-                templine = ""
+                if templine in remove_list:
+                    templine = ""
+                else:
+                    pdflines.append(templine[0:-1])
+                    templine = ""
     return pdflines
 
 
@@ -161,7 +175,7 @@ def extract_data_from_pdflines(pdflines):
     for line in pdflines:
         
         # Find Student name and class
-        Class_name_search = re.search(r"^(20\d{2}[eimst]),\s(.+)", line)
+        Class_name_search = re.search(r"^(20\d{2}[eimstq]),\s(.+)", line)
         Entry_Class_name_search = re.search(r"^(GF\d),\s(.+)", line)
         Class_udgaaet_search = re.search(r"^(Udgaaet),\s(.+)(\s\\)", line)
         
@@ -234,6 +248,32 @@ def extract_data_from_pdflines(pdflines):
                 Inputdata[3][book_title] = 1 #= 1 #[student_name]
     return Inputdata
 
+def extract_data_from_pdflines_pandas(pdflines):
+    Inputdata = pd.DataFrame(columns=["Klasse", "Navn", "Titel", "Mat.no.", "Udlånsdato", "Afleveringsdato"])
+    
+    # Iterate over all the lines
+    for line in pdflines:
+        
+        # Find Student name and class
+        Class_name_search = re.search(r"(20\d{2}[eimstq]|GF\d|Udgaaet),\s(.+)", line)
+        # If line contains student name and class:
+        if Class_name_search is not None:
+            # Make variable with student name and class
+            Class_name = Class_name_search.group(1)
+            student_name = Class_name_search.group(2)
+
+        # Find books
+        book = re.search(r"^(.+)\s(\d{5,6})\s([sk0-9\.]*\s)?(\d{2}-\d{2}-20\d{2})\s((\d{2})-(\d{2})-(20\d{2}))", line)
+        if book is not None:
+            title = book.group(1)
+            material_no = book.group(2)
+            date_out = book.group(4)
+            date_back = book.group(5)
+
+            # Make new row in dataframe for each book
+            Inputdata.loc[len(Inputdata)]=[Class_name,student_name, title, material_no, date_out,date_back]
+                   
+    return Inputdata
 
 def printerfunction_by_class(Inputdata):
     #print(Inputdata[2])
@@ -254,79 +294,80 @@ def printerfunction_by_class(Inputdata):
     st.write("% for gamle:\t", round((sum(Inputdata[2])/sum(Inputdata[1]))*100,2))
 
 def printerfunction_by_class_pandas(Inputdata):
+    
     pass
-    #print(Inputdata[2])
+
+
+
+
+
+
+    # #print(Inputdata[2])
     
-    df_klasser = pd.DataFrame(columns=['Klasse', 'Lån', 'For gamle lån', '% for gamle'])
+    # df_klasser = pd.DataFrame(columns=['Klasse', 'Lån', 'For gamle lån', '% for gamle'])
     
-    for Klasse in range(0, len(Inputdata[0])):
+    # for Klasse in range(0, len(Inputdata[0])):
 
-        # st.write(Inputdata[0][aagang], Inputdata[1][aagang], Inputdata[2][aagang], round((Inputdata[2][aagang]/Inputdata[1][aagang])*100,2), sep="\t")
+    #     # st.write(Inputdata[0][aagang], Inputdata[1][aagang], Inputdata[2][aagang], round((Inputdata[2][aagang]/Inputdata[1][aagang])*100,2), sep="\t")
 
-        df_klasser.loc[Klasse, "Klasse"] = Inputdata[0][Klasse]
-        df_klasser.loc[Klasse, "Lån"] = Inputdata[1][Klasse]
-        df_klasser.loc[Klasse, "For gamle lån"] = Inputdata[2][Klasse]
-        df_klasser.loc[Klasse, "% for gamle"] = round((Inputdata[2][Klasse]/Inputdata[1][Klasse])*100,2)
+    #     df_klasser.loc[Klasse, "Klasse"] = Inputdata[0][Klasse]
+    #     df_klasser.loc[Klasse, "Lån"] = Inputdata[1][Klasse]
+    #     df_klasser.loc[Klasse, "For gamle lån"] = Inputdata[2][Klasse]
+    #     df_klasser.loc[Klasse, "% for gamle"] = round((Inputdata[2][Klasse]/Inputdata[1][Klasse])*100,2)
 
-    df_årgange = pd.DataFrame(columns=['Årgang', 'Lån', 'For gamle lån', '% for gamle']) 
-    Klassetæller = 0
+    # df_årgange = pd.DataFrame(columns=['Årgang', 'Lån', 'For gamle lån', '% for gamle']) 
+    # Klassetæller = 0
 
-    #st.write(df_årgange["Årgang"])
-    #st.write(df_klasser["Klasse"])
-    # if "2017e" in df_klasser["Klasse"][0]:
-    #     st.success("")
+    # #st.write(df_årgange["Årgang"])
+    # #st.write(df_klasser["Klasse"])
+    # # if "2017e" in df_klasser["Klasse"][0]:
+    # #     st.success("")
 
-    st.table(df_klasser)
+    # st.table(df_klasser)
 
-
-
-    # # st.error("")
-    # # Laver en sum for hver årgang
-    # for klasse in range(0, len(df_klasser["Klasse"])):
-    #     årgang = ((str(df_klasser["Klasse"][klasse])[:-1]))
-        #st.write(årgang)
-        # if klasse == 0:
-        #     df_årgange.loc[klasse, 'Årgang'] = årgang
-        # else:
-        #     st.write(df_årgange["Årgang"])
-        #     #ast.write(klasse)
-        #     #st.write(klasse)
-        #     #st.write(df_årgange.isin({'Årgang':[årgang]}))
-        #     #if årgang not in df_klasser["Klasse"][klasse]:
-        #     if df_årgange.isin({'Årgang':[årgang]}) is True:
-        #         st.write(årgang)
-        #         #st.write(df_klasser["Klasse"][klasse])
-        #         #df_årgange.loc[klasse, "Årgang"] = årgang
+    # # # st.error("")
+    # # # Laver en sum for hver årgang
+    # # for klasse in range(0, len(df_klasser["Klasse"])):
+    # #     årgang = ((str(df_klasser["Klasse"][klasse])[:-1]))
+    #     #st.write(årgang)
+    #     # if klasse == 0:
+    #     #     df_årgange.loc[klasse, 'Årgang'] = årgang
+    #     # else:
+    #     #     st.write(df_årgange["Årgang"])
+    #     #     #ast.write(klasse)
+    #     #     #st.write(klasse)
+    #     #     #st.write(df_årgange.isin({'Årgang':[årgang]}))
+    #     #     #if årgang not in df_klasser["Klasse"][klasse]:
+    #     #     if df_årgange.isin({'Årgang':[årgang]}) is True:
+    #     #         st.write(årgang)
+    #     #         #st.write(df_klasser["Klasse"][klasse])
+    #     #         #df_årgange.loc[klasse, "Årgang"] = årgang
 
 
+    #     #st.write(årgang)
 
+    #     # if årgang not in df_årgange["Årgang"][Klassetæller]:
+    #     #     df_årgange.loc[Klassetæller, "Årgang"] = årgang
 
-        #st.write(årgang)
+    #     #     st.write(Klassetæller)
+    #     #     st.write(årgang)
 
-        # if årgang not in df_årgange["Årgang"][Klassetæller]:
-        #     df_årgange.loc[Klassetæller, "Årgang"] = årgang
-
-        #     st.write(Klassetæller)
-        #     st.write(årgang)
-
-        #     Klassetæller += 1
+    #     #     Klassetæller += 1
             
 
+    # #st.write(df_årgange)
 
-    #st.write(df_årgange)
-
-
-    # Klasse_laan  = Inputdata[1][årgang+k-4]+Inputdata[1][årgang+k-3]+Inputdata[1][årgang+k-2]+Inputdata[1][årgang+k-1]+Inputdata[1][årgang+k]
-    # Klasse_gamle = Inputdata[2][årgang+k-4]+Inputdata[2][årgang+k-3]+Inputdata[2][årgang+k-2]+Inputdata[2][årgang+k-1]+Inputdata[2][årgang+k]
-    # Klasse_procent = round((Klasse_gamle/Klasse_laan)*100,2)
-    # st.write("Sum:", Klasse_laan, Klasse_gamle, "", Klasse_procent, sep="\t")
-    # st.write()
+    # # Klasse_laan  = Inputdata[1][årgang+k-4]+Inputdata[1][årgang+k-3]+Inputdata[1][årgang+k-2]+Inputdata[1][årgang+k-1]+Inputdata[1][årgang+k]
+    # # Klasse_gamle = Inputdata[2][årgang+k-4]+Inputdata[2][årgang+k-3]+Inputdata[2][årgang+k-2]+Inputdata[2][årgang+k-1]+Inputdata[2][årgang+k]
+    # # Klasse_procent = round((Klasse_gamle/Klasse_laan)*100,2)
+    # # st.write("Sum:", Klasse_laan, Klasse_gamle, "", Klasse_procent, sep="\t")
+    # # st.write()
     
-    #st.write(df_klasser)
+    # #st.write(df_klasser)
 
-    st.write("Gym lån:\t", sum(Inputdata[1]))
-    st.write("Gamle Gym lån:\t", sum(Inputdata[2]))
-    st.write("% for gamle:\t", round((sum(Inputdata[2])/sum(Inputdata[1]))*100,2))
+    # st.write("Gym lån:\t", sum(Inputdata[1]))
+    # st.write("Gamle Gym lån:\t", sum(Inputdata[2]))
+    # st.write("% for gamle:\t", round((sum(Inputdata[2])/sum(Inputdata[1]))*100,2))
 
 
 def generate_barcodes(Elever_Cicero_data, Elever_Lectio_data, Selected_hold):

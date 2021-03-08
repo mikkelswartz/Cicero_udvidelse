@@ -19,7 +19,7 @@ import csv
 import os
 
 def write():
-    st.header("Stregkodegenererator til delehold")
+    st.header("Konvertering af bogbestillinger")
     
     if st.checkbox("Vis hjælp til at lokalisere bogbestillinger"):
         st.info(

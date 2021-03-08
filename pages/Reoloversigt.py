@@ -40,51 +40,63 @@ def write():
 
     # upload fra Cicero
     st.write("__Upload reoloversigt fra Cicero__")
-    #Reoloversigt_file = st.file_uploader("Uploade eksport af reoloversigt fra Cicero i csv-format", type="csv") 
-    Reoloversigt_file = "AUdvikling/reol-17.csv"
+    Reoloversigt_file = st.file_uploader("Uploade eksport af reoloversigt fra Cicero i csv-format", type="csv") 
+    #Reoloversigt_file = "AUdvikling/reol-17.csv"
 
 
     if Reoloversigt_file is not None:
+
+        # The next function is cached to speed up the reading 
+        # and formatting of the raw input.
+        # @st.cache
+        # def load_and_clean_data(pdf_file_name):
         Reoloversigt_data = pd.read_csv(Reoloversigt_file, sep=';', na_filter=False)
         Reoloversigt_data.drop([
-            "Unnamed: 0",
+            #"Unnamed: 0",
             "Klassifikation",
             "Mat. type", 
             "Materialegruppe",
             "Materialenr."
             ], axis=1, inplace=True)
-        # Reoloversigt_data = Reoloversigt_data.rename(columns={"Lånergrupper" : "Stamklasse"})
         
         if st.checkbox("Vis den uploadede reoloversigt fra Cicero"):
             st.dataframe(Reoloversigt_data, width=None, height=None)
-
 
         #liste over unikke placeringer
         Placeringer_list = list(Reoloversigt_data.Placering.unique())
         # Konverter til dict med placering som keys
         Placeringer = dict.fromkeys(Placeringer_list, dict())
 
+        # The next function is cached to speed up the 
+        # one-out-of-K-encoding
+        @st.cache
+        def one_out_of_K_encoding(Reoloversigt_data):
+            # Lav one-out-of-K encoding på Status
+            StatusLabels = list(Reoloversigt_data.Status)
+            StatusNames = sorted(set(StatusLabels))
+            StatusDict = dict(zip(StatusNames,range(len(StatusNames))))
+            y = np.array([StatusDict[cl] for cl in StatusLabels])
+            # Utilize one-out-of-K-encoding to depict Status as binary attributes in the dataset.
+            K = y.max()+1
+            Status_encoding = np.zeros((y.size, K))
+            Status_encoding[np.arange(y.size), y] = 1
+            Status_encoding = pd.DataFrame(Status_encoding, columns=["Bortkommet", "Hjemme", "Udlånt"])    
+            Reoloversigt_data = pd.concat((Reoloversigt_data,Status_encoding),axis=1)
+            Reoloversigt_data.drop(["Status"], axis=1, inplace=True)
 
-        # Lav one-out-of-K encoding på Status
-        StatusLabels = list(Reoloversigt_data.Status)
-        StatusNames = sorted(set(StatusLabels))
-        StatusDict = dict(zip(StatusNames,range(len(StatusNames))))
-        y = np.array([StatusDict[cl] for cl in StatusLabels])
-        # Utilize one-out-of-K-encoding to depict Status as binary attributes in the dataset.
-        K = y.max()+1
-        Status_encoding = np.zeros((y.size, K))
-        Status_encoding[np.arange(y.size), y] = 1
-        Status_encoding = pd.DataFrame(Status_encoding, columns=["Bortkommet", "Hjemme", "Udlånt"])    
-        Reoloversigt_data = pd.concat((Reoloversigt_data,Status_encoding),axis=1)
-        Reoloversigt_data.drop(["Status"], axis=1, inplace=True)
+            return Reoloversigt_data
+
+        Reoloversigt_data = one_out_of_K_encoding(Reoloversigt_data)
+
 
         # Lav oversigt over placeringer, titler på placeringerne. For hver titel er antal i alt, hjemme, udlånt og bortkommet
         for i in range(0, len(Placeringer)):
             # Find alle titler på reolen
-            Titler = list(Reoloversigt_data[Reoloversigt_data.Placering == Placeringer_list[0]].Titel.unique())
+            Titler = list(Reoloversigt_data[Reoloversigt_data.Placering == Placeringer_list[i]].Titel.unique())
             # Find antal eksemplarer, hjemme, udlånte og bortkomne
             for c in range(0, len(Titler)):
-                Titel = Reoloversigt_data[(Reoloversigt_data.Placering == Placeringer_list[0])  & (Reoloversigt_data.Titel ==Titler[c])]
+                Titel = Reoloversigt_data[(Reoloversigt_data.Placering == Placeringer_list[i])  & (Reoloversigt_data.Titel ==Titler[c])]
+                
                 Placeringer[Placeringer_list[i]].update({str(Titler[c]) : [
                     int(Titel.Hjemme.count()),
                     int(Titel.Hjemme.sum()), 
@@ -92,11 +104,27 @@ def write():
                     int(Titel.Bortkommet.sum())
                     ]})
 
-        if st.checkbox("Vis den konverterede reoloversigt fra Cicero"):
-            st.dataframe(Placeringer)
+        # Vælg om alt skal vises eller om man skal vælge
+        Alle_eller_enkelte = st.radio("Vælg visningsniveau.", options=["Vis alle tilgændelige reoler", "Vis udvalgte reoler"])
+        
+        if Alle_eller_enkelte == "Vis alle tilgændelige reoler":
+            Valgte_reoler = Placeringer_list
+        if Alle_eller_enkelte == "Vis udvalgte reoler":
+            Valgte_reoler = st.multiselect("Hvilke reoler vil du have vist?", Placeringer_list)
+        
+        # Vis dataframe for hver af de valgte reoler
+        for reol in Valgte_reoler:
+            # Lav en dataframe
+            reol_df = pd.DataFrame(Placeringer[reol]).transpose()
+            reol_df.rename(columns={0:"Antal i alt", 1:"Hjemme", 2:"Udlånt", 3:"Bortkommet"}, inplace=True)
+            reol_df = reol_df.sort_index()
 
-        Placeringer_ny = pd.DataFrame(columns=["Titel", "Antal i alt", "Hjemme", "Udlånt", "Bortkommet"])
-        ##### LAV EN DATAFRAME FOR HVER ENTKELT PLACERING ########
+            # Vis dataframe for reol
+            st.write(reol)
+            st.dataframe(reol_df)
+
+
+        ##### Gør det muligt at udskrive PDF/Excel med de valgte reoler ########
 
     """
     # Generer stregkoder
