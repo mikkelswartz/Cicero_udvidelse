@@ -1,7 +1,7 @@
 streamlit==0.59.0
 pandas==1.0.3
 python-barcode==0.11.0  
-reportlab==3.5.46 
+reportlab==3.6.13 
 xlrd==1.2.0
 openpyxl==3.0.4
 pdfplumber==0.5.23
